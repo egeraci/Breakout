@@ -12,10 +12,12 @@ class GameScene: SKScene {
    var ball = SKShapeNode ()
     var pattel = SKSpriteNode()
     var brick = SKSpriteNode()
+    var losezone = SKSpriteNode()
     
     override func didMove(to view: SKView) {
         createBackground()
         restGame()
+        makelosezone()
         
     }
     
@@ -91,6 +93,16 @@ class GameScene: SKScene {
         brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
         brick.physicsBody?.isDynamic = false
         addChild(brick)
+    }
+    
+    func makelosezone()
+    {
+        losezone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
+        losezone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
+        losezone.name = "losezone"
+        losezone.physicsBody = SKPhysicsBody(rectangleOf: losezone.size)
+        losezone.physicsBody?.isDynamic = false
+        addChild(losezone)
     }
 }
 
