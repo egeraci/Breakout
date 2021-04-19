@@ -22,6 +22,7 @@ class GameScene: SKScene {
     {
         //this stuff happens before each game starts
         makeball()
+        makepattle()
     }
     
     func createBackground()
@@ -74,7 +75,9 @@ class GameScene: SKScene {
         pattel = SKSpriteNode(color: .white, size:CGSize(width: frame.width/4, height: 20))
         pattel.position = CGPoint(x: frame.midX, y: frame.minY + 125)
         pattel.name = "pattel"
-        pattel.physicsBody = SKPhysicsBody()
+        pattel.physicsBody = SKPhysicsBody(rectangleOf: pattel.size)
+        pattel.physicsBody?.isDynamic = false
+        addChild(pattel)
     }
 }
 
