@@ -26,6 +26,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         
     }
     
+    func didBegin(_ contact: SKPhysicsContact) {
+        if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
+        {
+            print("YOU WIN!")
+            brick.removeFromParent()
+            ball.removeFromParent()
+        }
+        if contact.bodyA.node?.name == "lose zone" || contact.bodyB.node?.name == "lose zone"
+        {
+            print("you lose, better luck next time.")
+            ball.removeFromParent()
+        }
+    }
+    
     func restGame()
     {
         //this stuff happens before each game starts
@@ -110,7 +124,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     {
         losezone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
         losezone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
-        losezone.name = "losezone"
+        losezone.name = "lose zone"
         losezone.physicsBody = SKPhysicsBody(rectangleOf: losezone.size)
         losezone.physicsBody?.isDynamic = false
         addChild(losezone)
