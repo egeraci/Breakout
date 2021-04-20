@@ -115,5 +115,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         losezone.physicsBody?.isDynamic = false
         addChild(losezone)
     }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches
+        {
+            let location = touch.location(in: self)
+            pattel.position.x = location.x
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches
+        {
+            let location = touch.location(in: self)
+            pattel.position.x = location.x
+        }
+    }
 }
 
