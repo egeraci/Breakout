@@ -14,6 +14,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     var pattel = SKSpriteNode()
     var brick = SKSpriteNode()
     var losezone = SKSpriteNode()
+    var playlabel = SKLabelNode()
+    var  liveslabel = SKLabelNode()
+    var scorelabel = SKLabelNode()
+    var plangame = false
+    var score = 0
+    var lives = 3
     
     override func didMove(to view: SKView)
     {
@@ -23,7 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         restGame()
         makelosezone()
         kickball()
-        
+        makeLabels()
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -52,6 +58,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     {
         ball.physicsBody?.isDynamic = true
         ball.physicsBody?.applyImpulse(CGVector(dx: 3, dy: 5))
+    }
+   func updateLabels()
+    {
+    score.text = "score: \(score)"
     }
     
     func createBackground()
@@ -128,6 +138,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         losezone.physicsBody = SKPhysicsBody(rectangleOf: losezone.size)
         losezone.physicsBody?.isDynamic = false
         addChild(losezone)
+    }
+    
+    func makeLabels()
+    {
+        playlabel.fontSize = 20
+        playlabel.text = "tap to start"
+        playlabel.fontName = "Arial"
+        playlabel.position = CGPoint(x: frame.midX, y: frame.midY - 50)
+        playlabel.name = "play label"
+        addChild(playlabel)
+        
+        liveslabel.fontSize = 18
+        liveslabel.fontColor = .black
+        liveslabel.position = CGPoint(x: frame.minX + 50, y: frame.minY + 18)
+        addChild(liveslabel)
+        
+        scorelabel.fontSize = 18
+        scorelabel.fontColor = .black
+        scorelabel.fontName = "Arial"
+        scorelabel.position = CGPoint(x: frame.maxX - 50, y: frame.minY + 18)
+        addChild(scorelabel)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
