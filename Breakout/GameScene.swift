@@ -34,13 +34,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     func didBegin(_ contact: SKPhysicsContact) {
         if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
         {
-            print("YOU WIN!")
+            gameover(winner: true)
             brick.removeFromParent()
             ball.removeFromParent()
         }
         if contact.bodyA.node?.name == "lose zone" || contact.bodyB.node?.name == "lose zone"
         {
-            print("you lose, better luck next time.")
+            gameover(winner: false)
             ball.removeFromParent()
         }
     }
@@ -195,6 +195,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         {
             let location = touch.location(in: self)
             pattel.position.x = location.x
+        }
+    }
+    
+    func gameover(winner: Bool)
+    {
+        plangame = false
+        playlabel.alpha = 1
+        restGame()
+        if winner
+        {
+            playlabel.text = "you win!!! Good Job!"
+        }
+        else
+        {
+            playlabel.text = "you lose, better luck next time."
         }
     }
 }
