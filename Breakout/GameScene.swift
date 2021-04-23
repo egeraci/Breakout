@@ -28,7 +28,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         createBackground()
         restGame()
         makelosezone()
-        kickball()
         makeLabels()
     }
     
@@ -52,6 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         makeball()
         makepattle()
         makebrick()
+        updateLabels()
     }
     
     func kickball()
@@ -61,7 +61,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     }
    func updateLabels()
     {
-    score.text = "score: \(score)"
+        scorelabel.text = "score: \(score)"
+        liveslabel.text = "lives:\(lives)"
     }
     
     func createBackground()
@@ -166,7 +167,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         for touch in touches
         {
             let location = touch.location(in: self)
-            pattel.position.x = location.x
+            if plangame
+            {
+                pattel.position.x = location.x
+            }
+            else
+            {
+                for node in nodes(at: location)
+                {
+                    if node.name == "play label"
+                    {
+                        plangame = true
+                        node.alpha = 0
+                        score = 0
+                        lives = 3
+                        updateLabels()
+                        kickball()
+                    }
+                }
+            }
+            
         }
     }
     
