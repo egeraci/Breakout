@@ -11,13 +11,13 @@ import GameplayKit
 class GameScene: SKScene, SKPhysicsContactDelegate
 {
     var ball = SKShapeNode ()
-    var pattel = SKSpriteNode()
+    var paddle = SKSpriteNode()
     var brick = SKSpriteNode()
-    var losezone = SKSpriteNode()
-    var playlabel = SKLabelNode()
-    var  liveslabel = SKLabelNode()
-    var scorelabel = SKLabelNode()
-    var plangame = false
+    var loseZone = SKSpriteNode()
+    var playLabel = SKLabelNode()
+    var livesLabel = SKLabelNode()
+    var scoreLabel = SKLabelNode()
+    var playingGame = false
     var score = 0
     var lives = 3
     
@@ -26,43 +26,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         physicsWorld.contactDelegate = self
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         createBackground()
-        restGame()
-        makelosezone()
+        makeLoseZone()
         makeLabels()
+        resetGame()
     }
     
-    func didBegin(_ contact: SKPhysicsContact) {
-        if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
-        {
-            gameover(winner: true)
-            brick.removeFromParent()
-            ball.removeFromParent()
-        }
-        if contact.bodyA.node?.name == "lose zone" || contact.bodyB.node?.name == "lose zone"
-        {
-            gameover(winner: false)
-            ball.removeFromParent()
-        }
-    }
-    
-    func restGame()
+    func resetGame()
     {
         //this stuff happens before each game starts
-        makeball()
-        makepattle()
-        makebrick()
+        makeBall()
+        makePaddle()
+        makeBrick()
         updateLabels()
     }
     
-    func kickball()
+    func kickBall()
     {
         ball.physicsBody?.isDynamic = true
         ball.physicsBody?.applyImpulse(CGVector(dx: 3, dy: 5))
-    }
-   func updateLabels()
-    {
-        scorelabel.text = "score: \(score)"
-        liveslabel.text = "lives:\(lives)"
     }
     
     func createBackground()
@@ -70,18 +51,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         let stars = SKTexture(imageNamed: "Stars")
         for i in 0...1
         {
-            let starsbackground = SKSpriteNode (texture: stars)
-            starsbackground.zPosition = -1
-            starsbackground.position = CGPoint(x: 0, y: starsbackground.size.height * CGFloat(i))
-            addChild(starsbackground)
-            let moveDown = SKAction.moveBy(x: 0, y: -starsbackground.size.height, duration: 20)
-            let moveReset = SKAction.moveBy(x: 0, y: starsbackground.size.height, duration: 0)
-            let moveloup = SKAction.sequence([moveDown, moveReset])
-            let moveforever = SKAction .repeatForever(moveloup)
-            starsbackground.run(moveforever)
+            let starsBackground = SKSpriteNode (texture: stars)
+            starsBackground.zPosition = -1
+            starsBackground.position = CGPoint(x: 0, y: starsBackground.size.height * CGFloat(i))
+            addChild(starsBackground)
+            let moveDown = SKAction.moveBy(x: 0, y: -starsBackground.size.height, duration: 20)
+            let moveReset = SKAction.moveBy(x: 0, y: starsBackground.size.height, duration: 0)
+            let moveLoop = SKAction.sequence([moveDown, moveReset])
+            let moveForever = SKAction .repeatForever(moveLoop)
+            starsBackground.run(moveForever)
         }
     }
-    func makeball()
+    
+    func makeBall()
     {
         ball.removeFromParent() //remove ball if it exists
         ball = SKShapeNode(circleOfRadius: 10)
@@ -109,18 +91,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         addChild(ball) //add ball object to view
     }
     
-    func makepattle()
+    func makePaddle()
     {
-        pattel.removeFromParent()
-        pattel = SKSpriteNode(color: .white, size:CGSize(width: frame.width/4, height: 20))
-        pattel.position = CGPoint(x: frame.midX, y: frame.minY + 125)
-        pattel.name = "pattel"
-        pattel.physicsBody = SKPhysicsBody(rectangleOf: pattel.size)
-        pattel.physicsBody?.isDynamic = false
-        addChild(pattel)
+        paddle.removeFromParent()
+        paddle = SKSpriteNode(color: .white, size:CGSize(width: frame.width/4, height: 20))
+        paddle.position = CGPoint(x: frame.midX, y: frame.minY + 125)
+        paddle.name = "pattel"
+        paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
+        paddle.physicsBody?.isDynamic = false
+        addChild(paddle)
     }
     
-    func makebrick()
+    func makeBrick()
     {
         brick.removeFromParent()
         brick = SKSpriteNode(color: .blue, size: CGSize(width: 50, height: 20))
@@ -131,62 +113,60 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         addChild(brick)
     }
     
-    func makelosezone()
+    func makeLoseZone()
     {
-        losezone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
-        losezone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
-        losezone.name = "lose zone"
-        losezone.physicsBody = SKPhysicsBody(rectangleOf: losezone.size)
-        losezone.physicsBody?.isDynamic = false
-        addChild(losezone)
+        loseZone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
+        loseZone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
+        loseZone.name = "loseZone"
+        loseZone.physicsBody = SKPhysicsBody(rectangleOf: loseZone.size)
+        loseZone.physicsBody?.isDynamic = false
+        addChild(loseZone)
     }
     
     func makeLabels()
     {
-        playlabel.fontSize = 20
-        playlabel.text = "tap to start"
-        playlabel.fontName = "Arial"
-        playlabel.position = CGPoint(x: frame.midX, y: frame.midY - 50)
-        playlabel.name = "play label"
-        addChild(playlabel)
+        playLabel.fontSize = 20
+        playLabel.text = "tap to start"
+        playLabel.fontName = "Arial"
+        playLabel.position = CGPoint(x: frame.midX, y: frame.midY - 50)
+        playLabel.name = "playLabel"
+        addChild(playLabel)
         
-        liveslabel.fontSize = 18
-        liveslabel.fontColor = .black
-        liveslabel.position = CGPoint(x: frame.minX + 50, y: frame.minY + 18)
-        addChild(liveslabel)
+        livesLabel.fontSize = 18
+        livesLabel.fontColor = .black
+        livesLabel.position = CGPoint(x: frame.minX + 50, y: frame.minY + 18)
+        addChild(livesLabel)
         
-        scorelabel.fontSize = 18
-        scorelabel.fontColor = .black
-        scorelabel.fontName = "Arial"
-        scorelabel.position = CGPoint(x: frame.maxX - 50, y: frame.minY + 18)
-        addChild(scorelabel)
-        
+        scoreLabel.fontSize = 18
+        scoreLabel.fontColor = .black
+        scoreLabel.fontName = "Arial"
+        scoreLabel.position = CGPoint(x: frame.maxX - 50, y: frame.minY + 18)
+        addChild(scoreLabel)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches
         {
             let location = touch.location(in: self)
-            if plangame
+            if playingGame
             {
-                pattel.position.x = location.x
+                paddle.position.x = location.x
             }
             else
             {
                 for node in nodes(at: location)
                 {
-                    if node.name == "play label"
+                    if node.name == "playLabel"
                     {
-                        plangame = true
+                        playingGame = true
                         node.alpha = 0
                         score = 0
                         lives = 3
                         updateLabels()
-                        kickball()
+                        kickBall()
                     }
                 }
             }
-            
         }
     }
     
@@ -194,22 +174,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         for touch in touches
         {
             let location = touch.location(in: self)
-            pattel.position.x = location.x
+            paddle.position.x = location.x
         }
     }
     
-    func gameover(winner: Bool)
+    func didBegin(_ contact: SKPhysicsContact) {
+        if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
+        {
+            gameOver(winner: true)
+        }
+        if contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone"
+        {
+            gameOver(winner: false)
+        }
+    }
+    
+    func updateLabels()
+     {
+         scoreLabel.text = "score: \(score)"
+         livesLabel.text = "lives:\(lives)"
+     }
+
+    func gameOver(winner: Bool)
     {
-        plangame = false
-        playlabel.alpha = 1
-        restGame()
+        playingGame = false
+        playLabel.alpha = 1
+        resetGame()
         if winner
         {
-            playlabel.text = "you win!!! Good Job!"
+            playLabel.text = "you win!!! Good Job!"
         }
         else
         {
-            playlabel.text = "you lose, better luck next time."
+            playLabel.text = "you lose, better luck next time."
         }
     }
 }
