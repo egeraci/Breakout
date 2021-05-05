@@ -12,12 +12,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate
 {
     var ball = SKShapeNode ()
     var paddle = SKSpriteNode()
-    var brick = SKSpriteNode()
+    var bricks = [SKSpriteNode]()
     var loseZone = SKSpriteNode()
     var playLabel = SKLabelNode()
     var livesLabel = SKLabelNode()
     var scoreLabel = SKLabelNode()
     var playingGame = false
+    var removedBricks = 0
     var score = 0
     var lives = 3
     
@@ -36,7 +37,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         //this stuff happens before each game starts
         makeBall()
         makePaddle()
-        makeBrick()
+        makeBricks()
         updateLabels()
     }
     
@@ -101,19 +102,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         paddle.physicsBody?.isDynamic = false
         addChild(paddle)
     }
-    
-    func makeBrick()
-    {
-        brick.removeFromParent()
-        brick = SKSpriteNode(color: .blue, size: CGSize(width: 50, height: 20))
-        brick.position = CGPoint(x: frame.midX, y: frame.maxY-50)
-        brick.name = "brick"
-        brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
-        brick.physicsBody?.isDynamic = false
-        addChild(brick)
-    }
-    
-    func makeLoseZone()
+    func makeBricks() {
+         // first, remove any leftover bricks (from prior game)
+         for brick in bricks {
+             if brick.parent != nil {
+                 brick.removeFromParent()
+             }
+         }
+         bricks.removeAll()  // clear the array
+         removedBricks = 0   // reset the counter
+
+         // now, figure the number and spacing of each row of bricks
+         let count = Int(frame.width) / 55   // bricks per row
+         let xOffset = (Int(frame.width) - (count * 55)) / 2 + Int(frame.minX) + 25
+         let y = Int(frame.maxY) - 15
+         for i in 0..<count {
+            let x = i * 55 + xOffset
+            makeBrick(x: x , y: y, color: .green)
+
+            }
+        }
+     }
+    func makeLoseZone ()
     {
         loseZone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
         loseZone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
@@ -125,8 +135,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     
     func makeLabels()
     {
-        playLabel.fontSize = 20
-        playLabel.text = "tap to start"
+        playLabel.fontSize = 24
+        playLabel.text = "Tap to start"
         playLabel.fontName = "Arial"
         playLabel.position = CGPoint(x: frame.midX, y: frame.midY - 50)
         playLabel.name = "playLabel"
@@ -144,31 +154,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         addChild(scoreLabel)
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
+    {
         for touch in touches
-        {
+    {
             let location = touch.location(in: self)
             if playingGame
-            {
+        {
                 paddle.position.x = location.x
-            }
-            else
+        }
+                else
             {
                 for node in nodes(at: location)
-                {
+            {
                     if node.name == "playLabel"
-                    {
+                {
                         playingGame = true
                         node.alpha = 0
                         score = 0
                         lives = 3
                         updateLabels()
                         kickBall()
-                    }
                 }
             }
         }
     }
+}
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches
