@@ -24,6 +24,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     
     override func didMove(to view: SKView)
     {
+        //this stuff happens once (when the app opens)
         physicsWorld.contactDelegate = self
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
         createBackground()
@@ -94,35 +95,54 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     
     func makePaddle()
     {
-        paddle.removeFromParent()
+        paddle.removeFromParent() //remove the paddle, if it exists
         paddle = SKSpriteNode(color: .white, size:CGSize(width: frame.width/4, height: 20))
         paddle.position = CGPoint(x: frame.midX, y: frame.minY + 125)
-        paddle.name = "pattel"
+        paddle.name = "paddle"
         paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
         paddle.physicsBody?.isDynamic = false
         addChild(paddle)
     }
-    func makeBricks() {
-         // first, remove any leftover bricks (from prior game)
-         for brick in bricks {
-             if brick.parent != nil {
-                 brick.removeFromParent()
-             }
-         }
-         bricks.removeAll()  // clear the array
-         removedBricks = 0   // reset the counter
-
-         // now, figure the number and spacing of each row of bricks
-         let count = Int(frame.width) / 55   // bricks per row
-         let xOffset = (Int(frame.width) - (count * 55)) / 2 + Int(frame.minX) + 25
-         let y = Int(frame.maxY) - 15
-         for i in 0..<count {
-            let x = i * 55 + xOffset
-            makeBrick(x: x , y: y, color: .green)
-
+    
+    func makeBricks()
+    {
+        // first, remove any leftover bricks (from prior game)
+        for brick in bricks
+        {
+            if brick.parent != nil
+            {
+                brick.removeFromParent()
             }
         }
-     }
+        bricks.removeAll()  // clear the array
+        removedBricks = 0   // reset the counter
+        
+        // now, figure the number and spacing of each row of bricks
+        let count = Int(frame.width) / 55   // bricks per row
+        let xOffset = (Int(frame.width) - (count * 55)) / 2 + Int(frame.minX) + 25
+        let colors: [UIColor] = [.blue, .orange, .green]
+        for r in 0..<3
+        {
+            let y = Int(frame.maxY) - 15 - (r * 25)
+            for i in 0..<count
+            {
+                let x = i * 55 + xOffset
+                makeBrick(x: x , y: y, color: colors[r])
+            }
+        }
+    }
+    
+    //helper function used to make each brick
+    func makeBrick(x: Int, y: Int, color: UIColor)
+    {
+        let brick = SKSpriteNode(color: color, size:CGSize(width: 50, height: 20))
+        brick.position = CGPoint(x:x, y: y)
+        brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
+        brick.physicsBody?.isDynamic = false
+        addChild(brick)
+        bricks.append(brick)
+    }
+    
     func makeLoseZone ()
     {
         loseZone = SKSpriteNode(color: .red, size: CGSize(width: frame.width, height: 50))
@@ -157,29 +177,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)
     {
         for touch in touches
-    {
+        {
             let location = touch.location(in: self)
             if playingGame
-        {
+            {
                 paddle.position.x = location.x
-        }
-                else
+            }
+            else
             {
                 for node in nodes(at: location)
-            {
-                    if node.name == "playLabel"
                 {
+                    if node.name == "playLabel"
+                    {
                         playingGame = true
                         node.alpha = 0
                         score = 0
                         lives = 3
                         updateLabels()
                         kickBall()
+                    }
                 }
             }
         }
     }
-}
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches
@@ -189,23 +209,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         }
     }
     
-    func didBegin(_ contact: SKPhysicsContact) {
-        if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
+    func didBegin(_ contact: SKPhysicsContact)
+    {
+        //ask each brick, "Is it you?"
+        for brick in bricks
         {
-            gameOver(winner: true)
-        }
-        if contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone"
-        {
-            gameOver(winner: false)
+            if contact.bodyA.node == brick ||
+                contact.bodyB.node == brick
+            {
+                //increase ball velocity by 2%
+                ball.physicsBody!.velocity.dx = ball.physicsBody!.velocity.dx
+                    * CGFloat(1.02)
+                updateLabels()
+                if brick.color == .blue
+                {
+                if brick.color == .orange
+                if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
+                {
+                    gameOver(winner: true)
+                }
+                if contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone"
+                {
+                    gameOver(winner: false)
+                }
+            }
         }
     }
     
     func updateLabels()
-     {
-         scoreLabel.text = "score: \(score)"
-         livesLabel.text = "lives:\(lives)"
-     }
-
+    {
+        scoreLabel.text = "score: \(score)"
+        livesLabel.text = "lives:\(lives)"
+    }
+    
     func gameOver(winner: Bool)
     {
         playingGame = false
@@ -221,4 +257,3 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         }
     }
 }
-
