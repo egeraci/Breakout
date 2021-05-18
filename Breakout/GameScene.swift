@@ -217,23 +217,45 @@ class GameScene: SKScene, SKPhysicsContactDelegate
             if contact.bodyA.node == brick ||
                 contact.bodyB.node == brick
             {
+             score += 1
                 //increase ball velocity by 2%
                 ball.physicsBody!.velocity.dx = ball.physicsBody!.velocity.dx
                     * CGFloat(1.02)
                 updateLabels()
                 if brick.color == .blue
                 {
-                if brick.color == .orange
-                if contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick"
-                {
-                    gameOver(winner: true)
+                    brick.color = .orange
                 }
-                if contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone"
+                else if brick.color == .orange
                 {
-                    gameOver(winner: false)
+                    brick.color = .green
+                }
+                else
+                {
+                    brick.removeFromParent()
+                    removedBricks += 1
+                    if removedBricks == bricks.count
+                    {
+                        gameOver(winner: true)
+                    }
                 }
             }
         }
+               
+                if contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone"
+                {
+                    lives-=1
+                    if lives > 0
+                    {
+                        score = 0
+                        resetGame()
+                        kickBall()
+                    }
+                    else
+                    {
+                    gameOver(winner: false)
+                    }
+            }
     }
     
     func updateLabels()
@@ -241,7 +263,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate
         scoreLabel.text = "score: \(score)"
         livesLabel.text = "lives:\(lives)"
     }
-    
+    override func update(_ currentTime: TimeInterval) {
+           if abs(ball.physicsBody!.velocity.dx) < 100 {
+               // ball has stalled in x direction, so kick it randomly horizontally
+               ball.physicsBody?.applyImpulse(CGVector(dx: Int.random(in: -3...3), dy: 0))
+           }
+           if abs(ball.physicsBody!.velocity.dy) < 100 {
+               // ball has stalled in y direct, so kick it randomly vertically
+               ball.physicsBody?.applyImpulse(CGVector(dx: 0, dy: Int.random(in: -3...3)))
+           }
+       }
     func gameOver(winner: Bool)
     {
         playingGame = false
@@ -252,8 +283,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate
             playLabel.text = "you win!!! Good Job!"
         }
         else
-        {
+            {
             playLabel.text = "you lose, better luck next time."
+            }
         }
     }
-}
